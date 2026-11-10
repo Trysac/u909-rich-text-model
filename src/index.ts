@@ -1,20 +1,45 @@
 /**
- * Public entry point of @trysac/rich-text-model.
+ * Public entry point of `@trysac/rich-text-model`.
  *
- * Replace this placeholder with the utility's real API. Keep every export documented and covered by tests.
+ * Framework-free rich text document model with a schema, invertible steps,
+ * transactions, mapped selections and a bounded undo/redo history.
  */
 
-/**
- * Builds a greeting for `name`.
- *
- * @param name - Who to greet. Surrounding whitespace is ignored.
- * @returns The greeting, for example `"Hello, Ada!"`.
- * @throws {TypeError} When `name` is empty after trimming.
- */
-export function greet(name: string): string {
-  const trimmed = name.trim();
-  if (trimmed === "") {
-    throw new TypeError("name must not be empty");
-  }
-  return `Hello, ${trimmed}!`;
-}
+export { RichTextError, type RichTextErrorCode } from "./errors.js";
+export {
+  type Block,
+  type BlockAttrs,
+  type BlockType,
+  DEFAULT_MAX_BLOCKS,
+  DEFAULT_MAX_CHARS,
+  type Doc,
+  type EmptyAttrs,
+  type HeadingAttrs,
+  MAX_HREF_LENGTH,
+  type Mark,
+  type MarkType,
+  type ParseDocLimits,
+  type Pos,
+  parseDoc,
+  type Run,
+  type Selection,
+} from "./model.js";
+export {
+  type ApplyTransactionOptions,
+  DEFAULT_HISTORY_LIMIT,
+  EditorState,
+  type EditorStateConfig,
+  redo,
+  undo,
+} from "./state.js";
+export {
+  type AddMarkStep,
+  type Fragment,
+  mapPos,
+  type RemoveMarkStep,
+  type ReplaceStep,
+  type SetBlockTypeStep,
+  type Slice,
+  type Step,
+} from "./steps.js";
+export { Transaction } from "./transaction.js";

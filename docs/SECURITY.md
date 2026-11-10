@@ -1,31 +1,10 @@
-# Security practices
+# Security & Threat Model
 
-How this repository keeps the package and its users safe. The disclosure policy is in
-[../SECURITY.md](../SECURITY.md).
+`@trysac/rich-text-model` processes untrusted document JSON and edit operations.
 
-## Secrets
+## Controls
 
-- No secrets, tokens or credentials in the repository, commit history, logs or prompts.
-- `gitleaks` runs as the last step of `npm run check` and as a dedicated CI job. Its configuration is
-  `.gitleaks.toml`.
-- Publishing credentials live only in the CI secret store or the maintainer's local npm configuration.
-
-## Dependencies
-
-- Runtime dependencies are avoided; development dependencies are limited to the toolchain listed in
-  [STACK.md](STACK.md).
-- Dependabot opens weekly updates for npm packages and GitHub Actions.
-- Commit the generated `package-lock.json` so installs are reproducible.
-
-## Code
-
-- No `eval`, dynamic `Function` construction or shelling out from library code.
-- Inputs from callers are validated and rejected with explicit errors.
-- The `security` step of `npm run check` runs ESLint with eslint-plugin-security only (Biome stays the
-  linter). Its configuration is `scripts/eslint-security.config.mjs`; inline `eslint-disable` comments are
-  ignored, so a finding is fixed in the code, never silenced.
-
-## Publishing
-
-- Packages are published from a clean checkout after `npm run check` passes.
-- Only `dist/` is included in the published tarball.
+- **Resource exhaustion**: `parseDoc` enforces `maxBlocks` (default 10,000) and `maxChars` (default 1,000,000), throwing `'input_too_large'`. History is capped at `historyLimit` (default 100).
+- **XSS via `href`**: Link marks validate `href` via regex `^(https?:|mailto:)` (case-insensitive) after trimming, limited to 2,048 characters. Rejects `javascript:`, `data:`, `vbscript:`.
+- **Injection/Pollution**: `parseDoc` accepts only plain objects (Object prototype or null) and returns deep-frozen objects, preventing prototype pollution.
+- **Safe Error Handling**: `RichTextError` truncates messages to 180 characters, avoiding echo of untrusted payloads.

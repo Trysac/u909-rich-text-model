@@ -1,55 +1,43 @@
-# rich-text-model
+# @trysac/rich-text-model
 
-[![npm version](https://img.shields.io/npm/v/@trysac/rich-text-model.svg)](https://www.npmjs.com/package/@trysac/rich-text-model)
-[![license: MIT](https://img.shields.io/npm/l/@trysac/rich-text-model.svg)](LICENSE)
-[![CI](https://github.com/Trysac/u909-rich-text-model/actions/workflows/ci.yml/badge.svg)](https://github.com/Trysac/u909-rich-text-model/actions/workflows/ci.yml)
+Framework-free rich text document model with a schema, invertible steps, transactions, mapped selections, and a bounded undo/redo history.
 
-Framework-free rich text document model with a schema, invertible steps, transactions, mapped selections and a bounded undo/redo history
+## The Problem
 
-## Problem
+Editors built on contenteditable need a document model that is not the DOM: a schema that rejects invalid content, edits expressed as steps that can be inverted, selections that follow edits, and an undo history that restores the exact previous document. Full editor frameworks bundle all of this with a view layer, making them difficult to test in isolation. This library is the model alone, pure and deterministic, allowing any view or server to share the same logic.
 
-Describe in two or three sentences the concrete problem this utility solves, who hits it, and why existing
-packages do not solve it well. Keep it factual; link to an issue or decision record when there is one.
+## Installation
 
-## Install
-
-```sh
+```bash
 npm install @trysac/rich-text-model
 ```
-
-Requires Node.js 20 or newer. The package ships ES modules with TypeScript declarations.
 
 ## Usage
 
 ```ts
-import { greet } from "@trysac/rich-text-model";
+import { EditorState, parseDoc, redo, Transaction, undo } from "@trysac/rich-text-model";
 
-// Build a greeting; surrounding whitespace is ignored.
-const message = greet("  Ada ");
-console.log(message); // "Hello, Ada!"
-
-try {
-  greet("   ");
-} catch (error) {
-  console.error((error as Error).message); // "name must not be empty"
-}
+const doc = parseDoc({ blocks: [{ type: "paragraph", attrs: {}, runs: [{ text: "Hello world", marks: [] }] }] });
+const state0 = EditorState.create({ doc });
+const tr = new Transaction(state0.doc).insertText({ block: 0, offset: 5 }, ",");
+const state1 = state0.apply(tr);
+const undone = undo(state1)!;
+const redone = redo(undone)!;
 ```
 
-## API
+## Public API Summary
 
-| Export | Signature | Description |
-|---|---|---|
-| `greet` | `(name: string) => string` | Placeholder API; replace it with the real one. |
+- `parseDoc(json: unknown, limits?: { maxBlocks?: number, maxChars?: number }): Doc`: Validates untrusted JSON and returns a canonical, deep-frozen `Doc`.
+- `Transaction`: Atomic builder for `insertText`, `deleteRange`, `splitBlock`, `addMark`, `removeMark`, `setBlockType`, and `setSelection`.
+- `EditorState`: Immutable state container created via `EditorState.create({ doc, selection?, historyLimit? })` and updated via `state.apply(tr, opts?)`.
+- `undo(state)` / `redo(state)`: Navigates history stacks.
+- `mapPos(pos, steps)`: Maps a `{ block, offset }` position through a step sequence.
+- `RichTextError`: Exception with stable codes: `'invalid_position' | 'schema_violation' | 'invalid_mark' | 'input_too_large' | 'invalid_doc'`.
 
-## Development
+## Why not ProseMirror?
 
-```sh
-npm install
-npm run check   # lint, format, types, tests with coverage, docs, secrets
-```
+A small, dependency-free, flat model whose invertibility is property-tested.
 
-See [AGENTS.md](AGENTS.md) for the full command list and [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow.
+## Security
 
-## License
-
-[MIT](LICENSE) © 2026 Miguel Gomez
+See [docs/SECURITY.md](docs/SECURITY.md).

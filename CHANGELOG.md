@@ -9,4 +9,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Added `@trysac/rich-text-model` with `parseDoc`, `Transaction`, `EditorState`, `undo`, `redo`, `mapPos`, and `RichTextError`.
 - Initial project structure from the factory utility template.
