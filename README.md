@@ -8,9 +8,15 @@ Editors built on contenteditable need a document model that is not the DOM: a sc
 
 ## Installation
 
-```bash
-npm install @trysac/rich-text-model
+Not published to npm yet. Build it from a clone, then install it from the local path:
+
+```sh
+git clone https://github.com/Trysac/u909-rich-text-model.git
+cd u909-rich-text-model && npm ci && npm run build
+cd ../your-project && npm install ../u909-rich-text-model
 ```
+
+Imports keep the package name: `import { ... } from "@trysac/rich-text-model"`.
 
 ## Usage
 
